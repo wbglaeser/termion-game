@@ -2,8 +2,9 @@ use actix::{Actor,Addr, Handler, Message, SyncContext};
 use futures::{future, Future};
 use termion::event::Key;
 use termion::input::TermRead;
-use termion::raw::IntoRawMode;
-use std::io::{Write, stdout, stdin};
+use termion::raw::{IntoRawMode, RawTerminal};
+use std::io::{Write, stdout, stdin, Stdin, Stdout};
+use std::collections::HashMap;
 
 enum MoveX {
     Left,
@@ -15,19 +16,17 @@ enum MoveY {
     Down,
 }
 
-
 // initialise coordinates
-#[derive(Clone, Copy)]
-pub struct Coordinates {
+pub struct Rendact {
     pub cursor_x: u16,
     pub cursor_y: u16,
 }
 
-impl Actor for Coordinates {
+impl Actor for Rendact {
     type Context = SyncContext<Self>;
 }
 
-impl Coordinates {
+impl Rendact {
     pub fn new() -> Self {
         Self {
             cursor_x: 1,
@@ -59,16 +58,10 @@ impl Coordinates {
         }
     }
 
-    pub fn set_up(self) {
+    pub fn set_up(&mut self) {
 
-        // Get the standard input stream
-         let stdin = stdin();
-
-        // Get the standard output stream and go to raw mode
+        let stdin = stdin();
         let mut stdout = stdout().into_raw_mode().unwrap();
-
-        // Initialise coos
-        let mut coos = Coordinates::new();
 
         // Welcome message
         write!(stdout, "{}{}Welcome to Game. To exit please type q.{}",
@@ -88,30 +81,29 @@ impl Coordinates {
 
             // Print the key we type...
             match c.unwrap() {
+                
                 // Exit.
                 Key::Char('q') => break,
                 Key::Char(c)   => println!("{}", c),
                 Key::Alt(c)    => println!("Alt-{}", c),
-                Key::Ctrl(c)   => println!("Ctrl-{}", c),
 
                 // Move around game
-                Key::Left      => {
-                    coos.move_x(MoveX::Left);
-                    println!("{}o", termion::cursor::Goto(coos.cursor_x, coos.cursor_y));
+                Key::Left => {
+                    self.move_x(MoveX::Left);
+                    println!("{}o", termion::cursor::Goto(self.cursor_x, self.cursor_y));
                 },
-                Key::Right      => {
-                    coos.move_x(MoveX::Right);
-                    println!("{}o", termion::cursor::Goto(coos.cursor_x, coos.cursor_y));
+                Key::Right => {
+                    self.move_x(MoveX::Right);
+                    println!("{}o", termion::cursor::Goto(self.cursor_x, self.cursor_y));
                 },
-                Key::Up      => {
-                    coos.move_y(MoveY::Up);
-                    println!("{}o", termion::cursor::Goto(coos.cursor_x, coos.cursor_y));
+                Key::Up => {
+                    self.move_y(MoveY::Up);
+                    println!("{}o", termion::cursor::Goto(self.cursor_x, self.cursor_y));
                 },
-                Key::Down      => {
-                    coos.move_y(MoveY::Down);
-                    println!("{}o", termion::cursor::Goto(coos.cursor_x, coos.cursor_y));
+                Key::Down => {
+                    self.move_y(MoveY::Down);
+                    println!("{}o", termion::cursor::Goto(self.cursor_x, self.cursor_y));
                 },
-
                 _  => println!("Other"),
             }
 
@@ -121,7 +113,9 @@ impl Coordinates {
 
         // Show the cursor again before we exit
         write!(stdout, "{}", termion::cursor::Show).unwrap();
-    
+            
+        // Flush again.
+        stdout.flush().unwrap();
     }
 }
 
@@ -140,7 +134,7 @@ impl Message for Command {
     type Result = Value;
 }
 
-impl Handler<Command> for Coordinates {
+impl Handler<Command> for Rendact {
     type Result = Value;
 
     fn handle(&mut self, msg: Command, ctx: &mut  SyncContext<Self>) -> Self::Result {
@@ -151,5 +145,56 @@ impl Handler<Command> for Coordinates {
             Commands::Goodbye => {}
         }
     0
+    }
+}
+
+// Game
+pub struct Coordinate {
+    x: u16,
+    y: u16,
+}
+
+impl Coordinate {
+    pub fn new(_x: u16, _y: u16) -> Self {
+        Self {
+            x: _x,
+            y: _y,
+        }
+    }
+}
+
+pub type Id = u16;
+
+pub struct GameBoard {
+    pub state: HashMap<Id, Coordinate>,
+}
+
+impl GameBoard {
+    pub fn new() -> Self {
+        Self {
+            state: HashMap::new(),
+        }
+    }
+}
+
+impl Message for GameBoard {
+    type Result = Value;
+}
+
+impl Handler<GameBoard> for Rendact {
+    type Result = Value;
+
+    fn handle(&mut self, msg: GameBoard, ctx: &mut SyncContext<Self>) -> Self::Result {
+        
+        println!("hI HI");
+
+        let mut stdout = stdout().into_raw_mode().unwrap(); 
+        
+        // Show the cursor again before we exit
+        write!(stdout, "Hi there {}", termion::cursor::Show).unwrap();
+            
+        // Flush again.
+        stdout.flush().unwrap();
+        0
     }
 }
