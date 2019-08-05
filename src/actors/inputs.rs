@@ -60,6 +60,7 @@ impl Rendact {
 
     pub fn set_up(&mut self) {
 
+        let stdin = stdin();
         let mut stdout = stdout().into_raw_mode().unwrap();
 
         // Welcome message
@@ -68,6 +69,52 @@ impl Rendact {
             termion::cursor::Goto(self.cursor_x, self.cursor_y),
             termion::cursor::Hide).unwrap();
 
+        stdout.flush().unwrap();
+
+        // Accept Input
+        for c in stdin.keys() {
+
+            // Clear the current line.
+            for i in 1..100 {
+                write!(stdout, "{}{}", termion::cursor::Goto(1, i), termion::clear::CurrentLine).unwrap();
+            }
+
+            // Print the key we type...
+            match c.unwrap() {
+                
+                // Exit.
+                Key::Char('q') => break,
+                Key::Char(c)   => println!("{}", c),
+                Key::Alt(c)    => println!("Alt-{}", c),
+
+                // Move around game
+                Key::Left => {
+                    self.move_x(MoveX::Left);
+                    println!("{}o", termion::cursor::Goto(self.cursor_x, self.cursor_y));
+                },
+                Key::Right => {
+                    self.move_x(MoveX::Right);
+                    println!("{}o", termion::cursor::Goto(self.cursor_x, self.cursor_y));
+                },
+                Key::Up => {
+                    self.move_y(MoveY::Up);
+                    println!("{}o", termion::cursor::Goto(self.cursor_x, self.cursor_y));
+                },
+                Key::Down => {
+                    self.move_y(MoveY::Down);
+                    println!("{}o", termion::cursor::Goto(self.cursor_x, self.cursor_y));
+                },
+                _  => println!("Other"),
+            }
+
+            // Flush again.
+            stdout.flush().unwrap();
+        }
+
+        // Show the cursor again before we exit
+        write!(stdout, "{}", termion::cursor::Show).unwrap();
+            
+        // Flush again.
         stdout.flush().unwrap();
     }
 }
