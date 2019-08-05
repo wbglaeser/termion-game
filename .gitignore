@@ -1,5 +1,6 @@
 /target
-.loc/target
-*.lock
+
+
+Cargo.lock
 
 
