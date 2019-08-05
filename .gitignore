@@ -1,4 +1,5 @@
 /target
 .loc/target
-.lock
+*.lock
+
 
