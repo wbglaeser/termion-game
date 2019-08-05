@@ -1,6 +1,7 @@
-/target
+# Compiled target files
+/target/
 
-
+# lock file
 Cargo.lock
 
 
