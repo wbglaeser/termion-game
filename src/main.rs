@@ -13,7 +13,19 @@ fn main() {
 
     actix::run(|| {
         
+        // Set up Render Actor
         let mut coos = SyncArbiter::start(2, || Rendact::new());
+        
+        // Set up board
+        let msg = Command {
+            command: Commands::Welcome,
+        };
+        
+        let res1 = coos.send(msg)
+            .map_err(|err| other(err.compat()))
+            .and_then(|x| {
+                Ok(())
+            });
         
         // Draw some new stuff
         let mut game_new = GameBoard::new();
@@ -22,24 +34,12 @@ fn main() {
             Coordinate::new(10, 10),
         );
 
-        // Set up board
-        let msg = Command {
-            command: Commands::Welcome,
-        };
-        
-        coos.try_send(msg)
+        let res2 = coos.send(game_new)
             .map_err(|err| other(err.compat()))
             .and_then(|x| {
                 Ok(())
             });
 
-
-        coos.try_send(game_new)
-            .map_err(|err| other(err.compat()))
-            .and_then(|x| {
-                Ok(())
-            });
-        System::current().stop();
         future::ok(())
     });
 }
