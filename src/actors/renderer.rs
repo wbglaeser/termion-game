@@ -1,4 +1,4 @@
-use actix::{Actor,Addr, Handler, Message, SyncContext};
+use actix::{Actor,Addr, Handler, Message, SyncContext, System};
 use futures::{future, Future};
 use termion::event::Key;
 use termion::input::TermRead;
@@ -94,6 +94,7 @@ impl Handler<Command> for Rendact {
         match msg.command {
             Commands::Welcome => {
                 self.set_up();
+                System::current().stop();
             },
             Commands::Goodbye => {}
         }
