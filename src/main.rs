@@ -11,8 +11,7 @@ use actors::renderer::{Rendact, Commands, Command, Coordinate, GameBoard, Id};
 
 fn main() {
        
-    let sys = System::new("NewSys");    
-
+    actix::run(|| {
         // Set up Render Actor
         let mut coos = SyncArbiter::start(2, || Rendact::new());
         
@@ -20,30 +19,9 @@ fn main() {
         let msg = Command {
             command: Commands::Welcome,
         };
-        
-        let res1 = coos.send(msg)
-            .map_err(|err| other(err.compat()))
-            .and_then(|x| {
-                match x {
-                    0 => println!("Hi there"),
-                    _ => println!("Upsi")
-                }
-                future::ok(x)
-            });
+        coos.send(msg)
+            .and_then(|x| { future::ok(()) })
+            .map_err(|_| ())
 
-        // Draw some new stuff
-        let mut game_new = GameBoard::new();
-        game_new.state.insert(
-            1,
-            Coordinate::new(10, 10),
-        );
-
-        let res2 = coos.send(game_new)
-            .map_err(|err| other(err.compat()))
-            .and_then(|x| {
-                Ok(0)
-            });
-
-    sys.run();
-    //System::current().stop(); why does it not stop
+    });
 }
