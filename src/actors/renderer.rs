@@ -5,6 +5,7 @@ use termion::input::TermRead;
 use termion::raw::{IntoRawMode, RawTerminal};
 use std::io::{Write, stdout, stdin, Stdin, Stdout};
 use std::collections::HashMap;
+use std::{thread, time};
 
 enum MoveX {
     Left,
@@ -34,41 +35,27 @@ impl Rendact {
         }
     }
 
-    fn move_x(&mut self, d: MoveX) {
-        match d {
-            MoveX::Left => {
-                if self.cursor_x == 1 {}
-                else { self.cursor_x -= 1 }
-            },
-            MoveX::Right => {
-                self.cursor_x += 1
-            },
-        }
-    }
-
-    fn move_y(&mut self, d: MoveY) {
-        match d {
-            MoveY::Up => {
-                if self.cursor_y == 1 {}
-                else { self.cursor_y -= 1 }
-            },
-            MoveY::Down => {
-                self.cursor_y += 1
-            },
-        }
-    }
-
-    pub fn set_up(&mut self) {
-
-        let mut stdout = stdout().into_raw_mode().unwrap();
+    pub fn welcome_message(&mut self) {
+                
+        //let ten_millis = time::Duration::from_millis(20000);
+        //thread::sleep(ten_millis);
 
         // Welcome message
-        write!(stdout, "{}{}Welcome to Game. To exit please type q.{}",
+        println!("{}{}Welcome to Game. To exit please type q.{}",
             termion::clear::All,
             termion::cursor::Goto(self.cursor_x, self.cursor_y),
-            termion::cursor::Hide).unwrap();
+            termion::cursor::Hide);
+    }
 
-        stdout.flush().unwrap();
+    pub fn goodbye_message(&mut self) {
+        
+        println!("");
+        // Welcome message
+        println!("{}{}Well that was a lot of fun. See you next time.{}",
+            termion::clear::All,
+            termion::cursor::Goto(self.cursor_x, self.cursor_y),
+            termion::cursor::Hide);
+
     }
 }
 
@@ -79,9 +66,7 @@ pub enum Commands {
 
 type Value = u64;
 
-pub struct Command {
-    pub command: Commands,
-}
+pub struct Command (pub Commands);
 
 impl Message for Command {
     type Result = Value;
@@ -90,13 +75,15 @@ impl Message for Command {
 impl Handler<Command> for Rendact {
     type Result = Value;
 
-    fn handle(&mut self, msg: Command, ctx: &mut  SyncContext<Self>) -> Self::Result {
-        match msg.command {
+    fn handle(&mut self, Command(msg): Command, ctx: &mut  SyncContext<Self>) -> Self::Result {
+        match msg {
             Commands::Welcome => {
-                self.set_up();
-                System::current().stop();
+                self.welcome_message(); 
             },
-            Commands::Goodbye => {}
+            Commands::Goodbye => {
+                self.goodbye_message();
+                System::current().stop();
+            }
         }
     0
     }

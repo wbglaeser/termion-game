@@ -11,17 +11,20 @@ use actors::renderer::{Rendact, Commands, Command, Coordinate, GameBoard, Id};
 
 fn main() {
        
-    let sys = System::new("test");
+    actix::run(|| {
 
-    // Set up Render Actor
-    let mut coos = SyncArbiter::start(2, || Rendact::new());
-        
-    let msg = Command {
-        command: Commands::Welcome,
-    };
-    let fut1 = coos.send(msg)
-        .and_then(|x| { future::ok(()) })
-        .map_err(|_| ());
+        // Set up Render Actor
+        let mut coos = SyncArbiter::start(2, || Rendact::new());
+            
+        coos.send(Command(Commands::Welcome))
+            .map_err(|err| ())
+            .and_then(move |res| {   
+                coos.send(Command(Commands::Goodbye))
+                    .map_err(|err| ())
+                    .and_then(|x| {
+                        future::ok(())
+                    })
+            })
 
-    sys.run();
+    });
 }
