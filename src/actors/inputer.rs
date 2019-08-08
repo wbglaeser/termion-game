@@ -3,7 +3,7 @@ use futures::{future, Future};
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::{IntoRawMode, RawTerminal};
-use std::io::{stdin, Stdin};
+use std::io::{Write, stdin, Stdin, stdout};
 
 type Value = u64;
 
@@ -22,13 +22,19 @@ impl Inputact {
     pub fn set_up(&mut self) {        
 
         let stdin = stdin();
+        let mut stdout = stdout().into_raw_mode().unwrap();
 
         for c in stdin.keys() {
-            
+           
+            write!(stdout, "{}{}", termion::cursor::Goto(1, 1), termion::clear::CurrentLine).unwrap();
+
             // Print the key we type...
             match c.unwrap() {
                 // Exit.
-                Key::Char('q') => break,
+                Key::Char('q') => {
+                        println!("Well goodbye then");    
+                    System::current().stop();
+                },
                 Key::Char(c)   => println!("{}", c),
                 Key::Alt(c)    => println!("Alt-{}", c),
                 Key::Ctrl(c)   => println!("Ctrl-{}", c),
@@ -38,6 +44,7 @@ impl Inputact {
                 Key::Down      => println!("<down>"),
                 _              => println!("Other"),
             }
+        stdout.flush().unwrap();
         }
     }
 }
