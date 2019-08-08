@@ -37,7 +37,7 @@ impl Rendact {
 
     pub fn welcome_message(&mut self) {
                 
-        //let ten_millis = time::Duration::from_millis(20000);
+        //let ten_millis = time::Duration::from_millis(2000);
         //thread::sleep(ten_millis);
 
         // Welcome message
