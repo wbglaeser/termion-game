@@ -40,7 +40,7 @@ fn main() {
     let fut3 = inps.send(ICMD(CMDEN::SETUP))
         .map_err(|_| ())
         .and_then(|res| { 
-            println!("{:?}", res);
+            println!("{:?}", res.unwrap());
             future::ok(()) 
         });
 

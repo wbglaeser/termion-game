@@ -39,7 +39,7 @@ impl Inputact {
                 
                 // Exit.
                 Key::Char('q') => {
-                    System::current().stop();
+                System::current().stop();
                     answer = Answer::Play;
                     break;
                 },
