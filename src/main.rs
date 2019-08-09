@@ -15,8 +15,12 @@ fn main() {
     let opp = Opponact::new(1, 5, 10);
     let opp_state = opp.expose();
 
+    let opp2 = Opponact::new(2, 4, 8);
+    let opp2_state = opp2.expose();
+
     let mut game = GameBoard::new();
     game.state.insert(opp_state.0, opp_state.1);
+    game.state.insert(opp2_state.0, opp2_state.1);
 
 
     // Set up Render Actor
