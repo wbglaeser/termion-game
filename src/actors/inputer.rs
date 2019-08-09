@@ -1,9 +1,8 @@
-use actix::{Actor,Addr, Handler, Message, SyncContext, System};
-use futures::{future, Future};
+use actix::{Actor, Handler, Message, SyncContext, System};
 use termion::event::Key;
 use termion::input::TermRead;
-use termion::raw::{IntoRawMode, RawTerminal};
-use std::io::{Write, stdin, Stdin, stdout};
+use termion::raw::{IntoRawMode};
+use std::io::{Write, stdin, stdout};
 
 type Value = u64;
 
@@ -66,7 +65,7 @@ impl Message for ICMD {
 impl Handler<ICMD> for Inputact {
     type Result = Value;
 
-    fn handle(&mut self, ICMD(msg): ICMD, ctx: &mut SyncContext<Self>) -> Self::Result {
+    fn handle(&mut self, ICMD(msg): ICMD, _ctx: &mut SyncContext<Self>) -> Self::Result {
         match msg {
             CMDEN::SETUP => { 
                 self.set_up(); 
