@@ -39,7 +39,10 @@ fn main() {
     let inps = SyncArbiter::start(2, || Inputact::new());
     let fut3 = inps.send(ICMD(CMDEN::SETUP))
         .map_err(|_| ())
-        .and_then(|_x| { future::ok(()) });
+        .and_then(|res| { 
+            println!("{:?}", res);
+            future::ok(()) 
+        });
 
     Arbiter::spawn(fut3);
 

@@ -3,12 +3,33 @@ use std::collections::HashMap;
 
 use crate::actors::opponent::{Id, Coordinates};
 
+type Value = u64;
+
 // Design style elements
 const GAME_WELCOME: &'static str = "╔══════════════════════════════════════╗\n\r\
                                     ║───┬Welcome to this beautiful Game────║\n\r\
                                     ║ p ┆ play                             ║\n\r\
                                     ║ q ┆ quit                             ║\n\r\
                                     ╚═══╧══════════════════════════════════╝";
+
+const GAME_FIELD: &'static str = "╔══════════════════════════════════════╗\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ║                                      ║\n\r\
+                                  ╚══════════════════════════════════════╝";
 
 
 // initialise coordinates
@@ -38,9 +59,8 @@ impl Rendact {
     pub fn goodbye_message(&mut self) {
         
         // Welcome message
-        println!("{}{}Well that was a lot of fun. See you next time.{}",
-            termion::clear::All,
-            termion::cursor::Goto(1,1),
+        println!("{}Well that was a lot of fun. See you next time.{}",
+            termion::cursor::Goto(1,4),
             termion::cursor::Hide);
 
     }
@@ -53,12 +73,12 @@ impl Rendact {
     }
 }
 
+
+// Message Sectioni
 pub enum Commands {
     Welcome,
     Goodbye,
 }
-
-type Value = u64;
 
 pub struct Command (pub Commands);
 
@@ -70,7 +90,7 @@ impl Handler<Command> for Rendact {
     type Result = Value;
 
     fn handle(&mut self, Command(msg): Command, _: &mut  SyncContext<Self>) -> Self::Result {
-        match msg {
+        let reaction = match msg {
             Commands::Welcome => {
                 self.welcome_message(); 
             },
@@ -78,8 +98,8 @@ impl Handler<Command> for Rendact {
                 self.goodbye_message();
                 System::current().stop();
             }
-        }
-    0
+        };
+        0    
     }
 }
 

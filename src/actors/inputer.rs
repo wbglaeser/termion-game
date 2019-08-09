@@ -4,7 +4,12 @@ use termion::input::TermRead;
 use termion::raw::{IntoRawMode};
 use std::io::{Write, stdin, stdout};
 
-type Value = u64;
+#[derive(Debug)]
+pub enum Answer {
+    Play,
+    Quit,
+    NoAction
+}
 
 // initialise coordinates
 pub struct Inputact {}
@@ -18,10 +23,12 @@ impl Inputact {
         Self {}
     }
 
-    pub fn set_up(&mut self) {        
+    pub fn set_up(&mut self) -> Answer {        
 
         let stdin = stdin();
         let mut stdout = stdout().into_raw_mode().unwrap();
+
+        let mut answer: Answer = Answer::NoAction;
 
         for c in stdin.keys() {
            
@@ -29,49 +36,51 @@ impl Inputact {
 
             // Print the key we type...
             match c.unwrap() {
+                
                 // Exit.
                 Key::Char('q') => {
-                    println!("Well goodbye then\r");    
                     System::current().stop();
+                    answer = Answer::Play;
                     break;
                 },
-                Key::Char(c)   => println!("{}", c),
-                Key::Alt(c)    => println!("Alt-{}", c),
-                Key::Ctrl(c)   => println!("Ctrl-{}", c),
-                Key::Left      => println!("<left>"),
-                Key::Right     => println!("<right>"),
-                Key::Up        => println!("<up>"),
-                Key::Down      => println!("<down>"),
-                _              => println!("Other"),
-            }
+                Key::Char('p') =>{
+                    answer = Answer::Quit;
+                    break;
+                }
+                _ => {answer = Answer::NoAction;},
+            };
+
             stdout.flush().unwrap();
         }
         // Show the cursor again before we exit.
         write!(stdout, "{}", termion::cursor::Show).unwrap();
+    
+        answer
     }
 }
 
+
+// Message sending
 pub enum CMDEN {
     SETUP
 }
 
-// Send stdin
 pub struct ICMD (pub CMDEN);
 
 impl Message for ICMD {
-    type Result = Value;
+    type Result = Result<Answer, ()>;
 }
 
 impl Handler<ICMD> for Inputact {
-    type Result = Value;
+    type Result = Result<Answer, ()>;
 
     fn handle(&mut self, ICMD(msg): ICMD, _ctx: &mut SyncContext<Self>) -> Self::Result {
-        match msg {
+        
+        let answer = match msg {
             CMDEN::SETUP => { 
-                self.set_up(); 
+                self.set_up() 
             },
-            _ => {println!("did not work");}
-        }
-        0
+        };
+        Ok(answer)
     }
 }
