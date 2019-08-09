@@ -3,6 +3,14 @@ use std::collections::HashMap;
 
 use crate::actors::opponent::{Id, Coordinates};
 
+// Design style elements
+const GAME_WELCOME: &'static str = "╔══════════════════════════════════════╗\n\r\
+                                    ║───┬Welcome to this beautiful Game────║\n\r\
+                                    ║ p ┆ play                             ║\n\r\
+                                    ║ q ┆ quit                             ║\n\r\
+                                    ╚═══╧══════════════════════════════════╝";
+
+
 // initialise coordinates
 pub struct Rendact {
 }
@@ -20,9 +28,10 @@ impl Rendact {
     pub fn welcome_message(&mut self) {
                 
         // Welcome message
-        println!("{}{}Welcome to Game. To exit please type q.{}",
+        println!("{}{}{}{}",
             termion::clear::All,
             termion::cursor::Goto(1,1),
+            GAME_WELCOME,
             termion::cursor::Hide);
     }
 

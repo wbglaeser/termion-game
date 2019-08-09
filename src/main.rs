@@ -30,10 +30,10 @@ fn main() {
         .and_then(|_x| { future::ok(()) });
     Arbiter::spawn(fut);    
 
-    let fut2 = rend.send(game)
-        .map_err(|_| ())
-        .and_then(|_x| {future::ok(())});
-    Arbiter::spawn(fut2);
+    //let fut2 = rend.send(game)
+    //    .map_err(|_| ())
+    //    .and_then(|_x| {future::ok(())});
+    //Arbiter::spawn(fut2);
 
     // Set up Input Actor
     let inps = SyncArbiter::start(2, || Inputact::new());
