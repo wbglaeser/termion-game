@@ -32,8 +32,9 @@ impl Inputact {
             match c.unwrap() {
                 // Exit.
                 Key::Char('q') => {
-                        println!("Well goodbye then");    
+                    println!("Well goodbye then\r");    
                     System::current().stop();
+                    break;
                 },
                 Key::Char(c)   => println!("{}", c),
                 Key::Alt(c)    => println!("Alt-{}", c),
@@ -44,8 +45,10 @@ impl Inputact {
                 Key::Down      => println!("<down>"),
                 _              => println!("Other"),
             }
-        stdout.flush().unwrap();
+            stdout.flush().unwrap();
         }
+        // Show the cursor again before we exit.
+        write!(stdout, "{}", termion::cursor::Show).unwrap();
     }
 }
 
