@@ -1,7 +1,8 @@
 use actix::{Actor, Handler, Message, SyncContext, System};
 use std::collections::HashMap;
 
-use crate::actors::opponent::{Id, Coordinates};
+use crate::actors::monster::Id;
+use lib::{Position, Physics};
 
 type Value = u64;
 
@@ -65,11 +66,11 @@ impl Rendact {
 
     }
 
-    pub fn place_player(&mut self, coos: &Coordinates) {
-        
+    pub fn place_player(&mut self, pos: &Position) {
+
         println!("{}O",
-            termion::cursor::Goto(coos.x as u16, coos.y as u16));
-        
+            termion::cursor::Goto(pos.x as u16, pos.y as u16));
+
     }
 }
 
@@ -106,7 +107,7 @@ impl Handler<Command> for Rendact {
 
 #[derive(Clone)]
 pub struct GameBoard {
-    pub state: HashMap<Id, Coordinates>,
+    pub state: HashMap<Id, Physics>,
 }
 
 impl GameBoard {
@@ -126,8 +127,9 @@ impl Handler<GameBoard> for Rendact {
 
     fn handle(&mut self, msg: GameBoard, _ctx: &mut SyncContext<Self>) -> Self::Result {
         
-        for (id, coos) in &msg.state {
-            self.place_player(coos);
+        for (id, phyis) in &msg.state {
+            let pos = phyis.accessPosition();
+            self.place_player(pos);
         }
         0
     }

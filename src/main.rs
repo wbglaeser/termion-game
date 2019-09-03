@@ -6,16 +6,16 @@ mod actors;
 
 use actors::renderer::{Rendact, Commands, Command, GameBoard};
 use actors::inputer::{Inputact, ICMD, CMDEN};
-use actors::opponent::{Opponact};
+use actors::monster::{Monster};
 
 fn main() {
        
     let sys = System::new("newSys");
     
-    let opp = Opponact::new(1, 5, 10);
+    let opp = Monster::new(1, 5, 10);
     let opp_state = opp.expose();
 
-    let opp2 = Opponact::new(2, 4, 8);
+    let opp2 = Monster::new(2, 4, 8);
     let opp2_state = opp2.expose();
 
     let mut game = GameBoard::new();
