@@ -22,7 +22,6 @@ fn main() {
     game.state.insert(opp_state.0, opp_state.1);
     game.state.insert(opp2_state.0, opp2_state.1);
 
-
     // Set up Render Actor
     let rend = SyncArbiter::start(2, || Rendact::new());
     let fut = rend.send(Command(Commands::Welcome))
