@@ -1,50 +1,82 @@
 use actix::sync::SyncArbiter;
-use actix::{System, Arbiter};
+use actix::{System, Arbiter, Context, Actor, Addr};
 use futures::{future, Future};
+use std::{thread, time};
+use std::io::{Write, stdin, stdout};
 
-mod actors;
-
-use actors::renderer::{Rendact, Commands, Command, GameBoard};
-use actors::inputer::{Inputact, ICMD, CMDEN};
-use actors::monster::{Monster};
+use termion::event::Key;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
+use lib::{GameState, Player, Monster, take_input, render_welcome, render_game, clean_goodbye, clean_field};
 
 fn main() {
-       
-    let sys = System::new("newSys");
     
-    let opp = Monster::new(1, 5, 10);
-    let opp_state = opp.expose();
+    let stdout = stdout();
+    let mut stdout = stdout.lock().into_raw_mode().unwrap();
+ 
+    let play_bool = render_welcome();
 
-    let opp2 = Monster::new(2, 4, 8);
-    let opp2_state = opp2.expose();
+    // Kill game on command
+    if (play_bool == 1) {
+        clean_field();
+    } else {
+        clean_goodbye();
+        return()
+    }
+ 
+    // Else Set up the game
+    let player = Player::new(0, 5, 10);
+    let monster = Monster::new(1, 4, 8);
 
-    let mut game = GameBoard::new();
-    game.state.insert(opp_state.0, opp_state.1);
-    game.state.insert(opp2_state.0, opp2_state.1);
+    // Initialise Gamestate
+    let mut gamestate = GameState{
+        physics_components: vec![],
+        health_components: vec![],
+        humanoid_state: vec![],
+        players: vec![],
+    };
 
-    // Set up Render Actor
-    let rend = SyncArbiter::start(2, || Rendact::new());
-    let fut = rend.send(Command(Commands::Welcome))
-        .map_err(|_| ())
-        .and_then(|_x| { future::ok(()) });
-    Arbiter::spawn(fut);    
+    gamestate.physics_components.push(Some(player.physics));
+    gamestate.physics_components.push(Some(monster.physics));
 
-    //let fut2 = rend.send(game)
-    //    .map_err(|_| ())
-    //    .and_then(|_x| {future::ok(())});
-    //Arbiter::spawn(fut2);
+    gamestate.health_components.push(Some(player.health));
+    gamestate.health_components.push(Some(monster.health));
+   
+    gamestate.humanoid_state.push(player.entity_type);
+    gamestate.humanoid_state.push(monster.entity_type);
 
-    // Set up Input Actor
-    let inps = SyncArbiter::start(2, || Inputact::new());
-    let fut3 = inps.send(ICMD(CMDEN::SETUP))
-        .map_err(|_| ())
-        .and_then(|res| { 
-            println!("{:?}", res.unwrap());
-            future::ok(()) 
-        });
+    gamestate.players.push(player.id);
+    gamestate.players.push(monster.id);
 
-    Arbiter::spawn(fut3);
+    // Initialise Game 
+    let initial_game = gamestate.current_state();
+    render_game(initial_game);
 
-    // Run this stuff
-    sys.run();
+    // GameLoop
+    loop {
+
+        // copy game state into loop
+        let input_state = gamestate.current_state();
+
+        // check for input
+        match take_input() {
+            0 => {
+                clean_goodbye();
+                return ()
+            },
+            _=> {}
+        }
+
+        for phys in &input_state.physics_components {
+        
+            //let res = take_input();
+            //println!("{}", res.unwrap());
+        }
+
+        gamestate = input_state.current_state();
+        
+        let wait = time::Duration::from_millis(100);
+        thread::sleep(wait);
+    }
+
 }
