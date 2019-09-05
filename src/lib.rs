@@ -275,6 +275,9 @@ pub fn clean_field() {
 
 fn game_choice() -> u16 {
     
+    let stdout = stdout();
+    let mut stdout = stdout.lock().into_raw_mode().unwrap();
+    
     let mut stdin = stdin().keys();
     let mut game_code = 0 as u16;
 
@@ -298,7 +301,10 @@ fn game_choice() -> u16 {
 }
 
 pub fn take_input() -> u16 {
-    
+   
+    let stdout = stdout();
+    let mut stdout = stdout.lock().into_raw_mode().unwrap();
+
     let mut stdin = stdin().keys();
     let mut game_code = 3 as u16;
 
