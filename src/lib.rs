@@ -7,7 +7,6 @@ use termion;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-
 pub fn spawn_stdin_channel() -> Receiver<termion::event::Key> {
 
     let mut stdin = termion::async_stdin().keys();
@@ -41,6 +40,20 @@ pub fn pick_last_value(latest_keys: std::sync::mpsc::TryIter<termion::event::Key
 pub enum Msg {
     End,
     Continue,
+}
+
+pub enum WelcomeRsp {
+    Play,
+    Exit,
+    Null,
+}
+
+pub fn parse_input_welcome(val: termion::event::Key) -> WelcomeRsp {
+    match val {
+        termion::event::Key::Char('q') => {WelcomeRsp::Exit},
+        termion::event::Key::Char('p') => {WelcomeRsp::Play},
+        _=> {WelcomeRsp::Null},
+    }
 }
 
 pub fn parse_input(val: termion::event::Key) -> Msg {
