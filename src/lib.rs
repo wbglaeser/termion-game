@@ -15,7 +15,6 @@ pub fn spawn_stdin_channel() -> Receiver<termion::event::Key> {
 
     thread::spawn(move || {
         loop {
-            let tx = tx.clone();
             let input = stdin.next();
 
             if let Some(Ok(key)) = input {
