@@ -8,9 +8,7 @@ use termion;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-use lib::{parse_input, parse_input_welcome, 
-    spawn_stdin_channel, pick_last_value, 
-    sleep, Msg, WelcomeRsp};
+use lib::*;
 
 mod render;
 use render::renderer::{welcome_message};
@@ -40,7 +38,11 @@ fn main() {
         }
         sleep(500)
     }
-    
+   
+    // Set up some players
+    let gamestate = GameState::new();
+    gamestate.create_player();
+    gamestate.create_monster();
 
     // Game Loop
     match game {

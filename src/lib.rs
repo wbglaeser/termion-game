@@ -7,6 +7,10 @@ use termion;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
+mod components;
+use components::physics::*;
+use components::humanoid::*;
+
 pub fn spawn_stdin_channel() -> Receiver<termion::event::Key> {
 
     let mut stdin = termion::async_stdin().keys();
@@ -74,3 +78,71 @@ pub fn parse_input(val: termion::event::Key) -> Msg {
         }
     }
 }
+
+// Entity Types
+pub struct Player {
+    physics: Physics,
+    humanoid: HumanoidState,
+}
+
+
+impl Player {
+    pub fn new() -> Self {
+        Self {
+            physics: Physics::new(),
+            humanoid: HumanoidState::Human,
+        }
+    }
+}
+
+pub struct Monster {
+    physics: Physics,
+    humanoid: HumanoidState,
+}
+
+impl Monster {
+    pub fn new() -> Self {
+        Self {
+            physics: Physics::new(),
+            humanoid: HumanoidState::Monster,
+        }
+    }
+}
+
+pub type EntityIndex = u16;
+
+// GameState
+pub struct GameState {
+    physics: Vec<Option<Physics>>,
+    humanoid: Vec<Option<HumanoidState>>,
+    entities: Vec<EntityIndex>
+}
+
+impl GameState {
+    pub fn new() -> Self {
+        Self {
+            physics: Vec::new(),
+            humanoid: Vec::new(),
+            entities: Vec::new(),
+        }
+    }
+
+    pub fn create_player(&mut self) {
+        let new_player = Player::new();
+        let entity_count = self.entities.len();
+        
+        self.physics.push(Some(new_player.physics));
+        self.humanoid.push(Some(new_player.humanoid));
+        self.entities.push(entity_count as u16 + 1);
+    }
+    pub fn create_monster(&mut self) {
+        let new_monster = Monster::new();
+        let entity_count = self.entities.len();
+        
+        self.physics.push(Some(new_monster.physics));
+        self.humanoid.push(Some(new_monster.humanoid));
+        self.entities.push(entity_count as u16 + 1);
+    }
+}
+
+
