@@ -11,7 +11,7 @@ use termion::raw::IntoRawMode;
 use lib::*;
 
 mod render;
-use render::renderer::{welcome_message};
+use render::renderer::{welcome_message, goodbye_message};
 
 fn main() {
     let stdin_channel = spawn_stdin_channel();
@@ -40,7 +40,7 @@ fn main() {
     }
    
     // Set up some players
-    let gamestate = GameState::new();
+    let mut gamestate = GameState::new();
     gamestate.create_player();
     gamestate.create_monster();
 
@@ -58,7 +58,10 @@ fn main() {
                 sleep(500)
             }
         },
-        _=> {}
+        _=> {
+            goodbye_message();
+            sleep(2000)
+        }
     }
 
     // Restore terminal state
