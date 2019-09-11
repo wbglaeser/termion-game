@@ -58,5 +58,8 @@ fn main() {
         },
         _=> {}
     }
+
+    // Restore terminal state
+    println!("{show}", show=termion::cursor::Show);
 }
 

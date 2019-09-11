@@ -6,10 +6,13 @@ pub enum test {
 }
 
 pub fn welcome_message() {
-    println!("{clear}{goto}{vis}",
+    println!("{clear}{goto}{vis}{hide}",
              clear=termion::clear::All,
              goto=termion::cursor::Goto(1,1),
-             vis=GAME_WELCOME);
+             vis=GAME_WELCOME,
+             hide=termion::cursor::Hide);
 }
 
+pub fn render_board() {
 
+}
