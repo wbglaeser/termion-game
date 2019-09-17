@@ -64,16 +64,16 @@ pub fn parse_input(val: termion::event::Key) -> Msg {
     match val {
         termion::event::Key::Char('q') => {Msg::End},
         termion::event::Key::Char(c) => {
-            println!("{clear}{goto}{c}",
-                     clear=termion::clear::All,
-                     goto=termion::cursor::Goto(1,1),
-                     c=c);
+           // println!("{clear}{goto}{c}",
+           //          clear=termion::clear::All,
+           //          goto=termion::cursor::Goto(1,1),
+           //          c=c);
             Msg::Continue
         }
         _=> {
-            println!("{clear}{goto}No News",
-                     clear=termion::clear::All,
-                     goto=termion::cursor::Goto(1,1));
+            //println!("{clear}{goto}No News",
+            //         clear=termion::clear::All,
+            //         goto=termion::cursor::Goto(1,1));
             Msg::Continue
         }
     }
@@ -112,10 +112,11 @@ impl Monster {
 pub type EntityIndex = u16;
 
 // GameState
+#[derive(Clone)]
 pub struct GameState {
-    physics: Vec<Option<Physics>>,
-    humanoid: Vec<Option<HumanoidState>>,
-    entities: Vec<EntityIndex>
+    pub physics: Vec<Option<Physics>>,
+    pub humanoid: Vec<Option<HumanoidState>>,
+    pub entities: Vec<EntityIndex>
 }
 
 impl GameState {

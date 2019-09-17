@@ -11,7 +11,7 @@ use termion::raw::IntoRawMode;
 use lib::*;
 
 mod render;
-use render::renderer::{welcome_message, goodbye_message};
+use render::renderer::{welcome_message, goodbye_message, render_game};
 
 fn main() {
     let stdin_channel = spawn_stdin_channel();
@@ -48,6 +48,12 @@ fn main() {
     match game {
         true => {
             loop {
+
+                let current_game = gamestate.clone();
+
+                // render game
+                render_game(current_game);
+
                 let mut stdout = io::stdout().into_raw_mode().unwrap();
                 let latest_keys = stdin_channel.try_iter();
                 let final_val = pick_last_value(latest_keys);
