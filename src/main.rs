@@ -55,15 +55,27 @@ fn main() {
                 render_game(current_game);
 
                 // receive next moves
+                
                 // A) take user input
                 let mut stdout = io::stdout().into_raw_mode().unwrap();
                 let latest_keys = stdin_channel.try_iter();
                 let final_val = pick_last_value(latest_keys);
-                let user_move =  parse_input(final_val);
-
+                let user_move = parse_input(final_val); 
+                
+                // check whether use wants to end game
+                match user_move {
+                    Msg::End => break,
+                    _ => {},
+                } 
+                
                 // B) computer monster move
+                                             
+                
+                
                 sleep(500)
             }
+            goodbye_message();
+            sleep(2000)
         },
         _=> {
             goodbye_message();

@@ -42,8 +42,12 @@ pub fn pick_last_value(latest_keys: std::sync::mpsc::TryIter<termion::event::Key
 }
 
 pub enum Msg {
-    End,
     Continue,
+    End,
+    Left,
+    Right,
+    Up,
+    Down,
 }
 
 pub enum WelcomeRsp {
@@ -62,22 +66,12 @@ pub fn parse_input_welcome(val: termion::event::Key) -> WelcomeRsp {
 
 pub fn parse_input(val: termion::event::Key) -> Msg {
     match val {
-        termion::event::Key::Char('q') => {Msg::End},
-        termion::event::Key::Char(c) => {
-           
-            
-            // println!("{clear}{goto}{c}",
-           //          clear=termion::clear::All,
-           //          goto=termion::cursor::Goto(1,1),
-           //          c=c);
-            Msg::Continue
-        }
-        _=> {
-            //println!("{clear}{goto}No News",
-            //         clear=termion::clear::All,
-            //         goto=termion::cursor::Goto(1,1));
-            Msg::Continue
-        }
+        termion::event::Key::Char('q') => Msg::End,
+        termion::event::Key::Left => Msg::Left,
+        termion::event::Key::Right => Msg::Right,
+        termion::event::Key::Up => Msg::Up,
+        termion::event::Key::Down => Msg::Down,
+        _=> Msg::Continue,
     }
 }
 
