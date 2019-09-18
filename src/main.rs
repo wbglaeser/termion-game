@@ -43,16 +43,16 @@ fn main() {
     let mut gamestate = GameState::new();
     gamestate.create_player();
     gamestate.create_monster();
+    gamestate.create_monster();
+    gamestate.create_monster();
 
     // Game Loop
     match game {
         true => {
             loop {
 
-                let current_game = gamestate.clone();
-
                 // render game
-                render_game(current_game);
+                render_game(&gamestate);
 
                 // receive next moves
                 
@@ -60,19 +60,28 @@ fn main() {
                 let mut stdout = io::stdout().into_raw_mode().unwrap();
                 let latest_keys = stdin_channel.try_iter();
                 let final_val = pick_last_value(latest_keys);
-                let user_move = parse_input(final_val); 
-                
+                let user_input = parse_input(final_val); 
+               
                 // check whether use wants to end game
-                match user_move {
-                    Msg::End => break,
-                    _ => {},
-                } 
+                let mut user_move = NextMove::NoMove;
+                match user_input {
+                    Msg::End => {
+                        break;        
+                    },
+                    Msg::Continue => {},
+                    _=> {user_move = translate_user_input(user_input);}
+
+                }
                 
+                println!("{}user move: {:?}", 
+                         termion::cursor::Goto(1,19),
+                         user_move);
+
                 // B) computer monster move
-                                             
-                
-                
-                sleep(500)
+                gamestate = intelligence_system(user_move, gamestate); 
+                gamestate = update_system(gamestate);
+
+                sleep(250);
             }
             goodbye_message();
             sleep(2000)

@@ -1,7 +1,7 @@
 use rand::{thread_rng, Rng};
 
-#[derive(Copy, Clone)]
-struct Position {
+#[derive(Copy, Clone, Debug)]
+pub struct Position {
     x: u16,
     y: u16,
 }
@@ -14,9 +14,42 @@ impl Position {
         }
     }
 
+    pub fn empty() -> Self {
+        Self {
+            x:0,
+            y:0,
+        }
+    }
+
     pub fn accessPositionInner(self) -> (u16, u16) {
         (self.x, self.y)
     }
+
+    // define moves
+    pub fn move_up(mut self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y - 1,
+        }
+    }
+    pub fn move_down(mut self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y + 1,
+        }
+    }
+    pub fn move_left(mut self) -> Self {
+        Self {
+            x: self.x - 1,
+            y: self.y,
+        }
+    }
+    pub fn move_right(mut self) -> Self {
+        Self {
+            x: self.x + 1,
+            y: self.y,
+        }
+    } 
 } 
 
 #[derive(Copy, Clone)]
@@ -34,7 +67,7 @@ impl Velocity {
 
 #[derive(Copy, Clone)]
 pub struct Physics {
-    position: Position,
+    pub position: Position,
     velocity: Velocity,
 }
 

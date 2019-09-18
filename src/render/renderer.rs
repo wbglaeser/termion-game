@@ -22,14 +22,14 @@ pub fn goodbye_message() {
              hide=termion::cursor::Hide);
 }
 
-pub fn render_game(gamestate: GameState) {
+pub fn render_game(gamestate: &GameState) {
     println!("{clear}{goto}{vis}{hide}",
              clear=termion::clear::All,
              goto=termion::cursor::Goto(1,1),
              vis=GAME_FIELD,
              hide=termion::cursor::Hide);
 
-    for f in gamestate.physics {
+    for f in &gamestate.physics {
         
         if let Some(i) = f {
             
@@ -39,9 +39,6 @@ pub fn render_game(gamestate: GameState) {
                 goto=termion::cursor::Goto(pos.0, pos.1),
                 hide=termion::cursor::Hide);
         }
-
-
     }
-    
 }
 
