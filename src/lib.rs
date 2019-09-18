@@ -7,7 +7,7 @@ use termion;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-mod components;
+pub mod components;
 use components::physics::*;
 use components::humanoid::*;
 
