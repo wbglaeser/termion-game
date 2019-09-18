@@ -64,7 +64,9 @@ pub fn parse_input(val: termion::event::Key) -> Msg {
     match val {
         termion::event::Key::Char('q') => {Msg::End},
         termion::event::Key::Char(c) => {
-           // println!("{clear}{goto}{c}",
+           
+            
+            // println!("{clear}{goto}{c}",
            //          clear=termion::clear::All,
            //          goto=termion::cursor::Goto(1,1),
            //          c=c);

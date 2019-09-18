@@ -54,13 +54,14 @@ fn main() {
                 // render game
                 render_game(current_game);
 
+                // receive next moves
+                // A) take user input
                 let mut stdout = io::stdout().into_raw_mode().unwrap();
                 let latest_keys = stdin_channel.try_iter();
                 let final_val = pick_last_value(latest_keys);
-                match parse_input(final_val) {
-                    Msg::End => break,
-                    _=> {}
-                }
+                let user_move =  parse_input(final_val);
+
+                // B) computer monster move
                 sleep(500)
             }
         },
