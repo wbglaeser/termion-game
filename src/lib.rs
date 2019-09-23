@@ -218,7 +218,35 @@ gamestate
 }
 
 fn compute_shortest_distance(own_pos: (u16, u16), target_pos: (u16, u16)) -> NextMove {
-    NextMove::NoMove
+    let mut next_move = NextMove::NoMove;
+    let mut shortest_distance: i16 = 1000;
+    for x in [NextMove::Up, NextMove::Down, NextMove::Left, NextMove::Right].iter() {
+        let potential_position = position_change(own_pos, &x);
+        let d = compute_distance(potential_position, target_pos);
+        if (d < shortest_distance) {
+            next_move = *x;
+            shortest_distance = d;
+        }
+    }
+    next_move
+}
+
+fn position_change(position: (u16, u16), next_move: &NextMove) -> (u16, u16) {
+    let mut new_position = position;
+    match next_move {
+        NextMove::Up => new_position = (new_position.0, new_position.1 - 1), 
+        NextMove::Down => new_position = (new_position.0, new_position.1 + 1), 
+        NextMove::Left => new_position = (new_position.0 - 1, new_position.1), 
+        NextMove::Right => new_position = (new_position.0 + 1, new_position.1), 
+        _ => {}
+    }
+    new_position
+}
+
+fn compute_distance(potential_position: (u16, u16), target_position: (u16, u16)) -> i16 {
+    let x_delta = potential_position.0 as i16 - target_position.0 as i16; 
+    let y_delta = potential_position.1 as i16 - target_position.1 as i16; 
+    x_delta.abs() + y_delta.abs()
 }
 
 

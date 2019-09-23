@@ -81,7 +81,7 @@ fn main() {
                 gamestate = intelligence_system(user_move, gamestate); 
                 gamestate = update_system(gamestate);
 
-                sleep(250);
+                sleep(150);
             }
             goodbye_message();
             sleep(2000)
