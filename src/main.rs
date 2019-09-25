@@ -11,11 +11,12 @@ use termion::raw::IntoRawMode;
 use lib::*;
 
 mod render;
-use render::renderer::{welcome_message, goodbye_message, render_game};
+use render::renderer::{welcome_message, goodbye_message, render_game, GameField};
 
 fn main() {
     let stdin_channel = spawn_stdin_channel();
 
+    println!("{:?}", termion::terminal_size());
     // Welcome message
     welcome_message();
     let mut game = false;
@@ -39,6 +40,9 @@ fn main() {
         sleep(500)
     }
    
+    // Set up game GameField
+    let gamefield = GameField::set_game_field(termion::terminal_size().unwrap());
+
     // Set up some players
     let mut gamestate = GameState::new();
     gamestate.create_player();
@@ -52,7 +56,7 @@ fn main() {
             loop {
 
                 // render game
-                render_game(&gamestate);
+                render_game(&gamestate, &gamefield);
 
                 // receive next moves
                 
@@ -73,10 +77,6 @@ fn main() {
 
                 }
                 
-                println!("{}user move: {:?}", 
-                         termion::cursor::Goto(1,19),
-                         user_move);
-
                 // B) computer monster move
                 gamestate = intelligence_system(user_move, gamestate); 
                 gamestate = update_system(gamestate);
