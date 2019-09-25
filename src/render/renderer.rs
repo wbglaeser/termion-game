@@ -91,6 +91,11 @@ pub fn render_game(gamestate: &GameState, gamefield: &GameField) {
                                 goto=termion::cursor::Goto(pos.0, pos.1),
                                 hide=termion::cursor::Hide);
                         },
+                        HumanoidState::Weapon => {
+                            println!("{goto}🔫{hide}",
+                                goto=termion::cursor::Goto(pos.0, pos.1),
+                                hide=termion::cursor::Hide);
+                        },
                     }
             }   
         }

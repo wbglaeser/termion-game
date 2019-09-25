@@ -48,6 +48,7 @@ fn main() {
     gamestate.create_player(termion::terminal_size().unwrap());
     gamestate.create_monster(termion::terminal_size().unwrap());
     //gamestate.create_monster(termion::terminal_size().unwrap());
+    gamestate.create_weapon(termion::terminal_size().unwrap());
 
     // Game Loop
     match game {
@@ -77,7 +78,10 @@ fn main() {
                 }
                 
                 // B) computer monster move
-                gamestate = intelligence_system(user_move, gamestate); 
+                let weapon_position = retrieve_weapon_position(&gamestate);
+                let user_position = retrieve_user_position(&gamestate);
+
+                gamestate = intelligence_system(gamestate, user_position, user_move); 
                 gamestate = update_system(gamestate, &boundaries);
 
                 sleep(150);
