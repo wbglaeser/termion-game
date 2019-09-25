@@ -1,4 +1,5 @@
 use rand::{thread_rng, Rng};
+use crate::Boundaries;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Position {
@@ -49,7 +50,14 @@ impl Position {
             x: self.x + 1,
             y: self.y,
         }
-    } 
+    }
+    
+    pub fn is_inside(self, boundaries: &Boundaries) -> bool {
+        if (self.x > boundaries.x_min && self.x < boundaries.x_max
+            && self.y > boundaries.y_min && self.y < boundaries.y_max) {
+            return true
+        } else { false }
+    }
 } 
 
 #[derive(Copy, Clone)]

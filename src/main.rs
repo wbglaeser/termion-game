@@ -41,12 +41,13 @@ fn main() {
    
     // Set up game GameField
     let gamefield = GameField::set_game_field(termion::terminal_size().unwrap());
+    let boundaries = Boundaries::set_boundaries(termion::terminal_size().unwrap());
 
     // Set up some players
     let mut gamestate = GameState::new();
     gamestate.create_player(termion::terminal_size().unwrap());
     gamestate.create_monster(termion::terminal_size().unwrap());
-    gamestate.create_monster(termion::terminal_size().unwrap());
+    //gamestate.create_monster(termion::terminal_size().unwrap());
 
     // Game Loop
     match game {
@@ -77,7 +78,7 @@ fn main() {
                 
                 // B) computer monster move
                 gamestate = intelligence_system(user_move, gamestate); 
-                gamestate = update_system(gamestate);
+                gamestate = update_system(gamestate, &boundaries);
 
                 sleep(150);
             }

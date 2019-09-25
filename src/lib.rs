@@ -251,7 +251,7 @@ fn compute_distance(potential_position: (u16, u16), target_position: (u16, u16))
 
 
 // Action System
-pub fn update_system(mut gamestate: GameState) -> GameState {
+pub fn update_system(mut gamestate: GameState, boundaries: &Boundaries) -> GameState {
     
     let mut new_physics_vec = Vec::new();
 
@@ -260,20 +260,34 @@ pub fn update_system(mut gamestate: GameState) -> GameState {
         if let Some(c) = cp {
 
             let mut new_physics = c.clone();
+            let mut new_position = new_physics.position.clone();
 
             if let Some(m) = nm {
                 match m {
                     NextMove::Up => {
-                        new_physics.position = new_physics.position.move_up();
+                        new_position = new_physics.position.move_up();
+                        if (new_position.is_inside(boundaries)) {
+                            new_physics.position = new_position;
+                        }
                     },
                     NextMove::Down => {
-                        new_physics.position = new_physics.position.move_down();
+                        new_position = new_physics.position.move_down();
+                        if (new_position.is_inside(boundaries)) {
+                            new_physics.position = new_position;
+                        }
                     },
                     NextMove::Left => {
-                        new_physics.position = new_physics.position.move_left();
+                        new_position = new_physics.position.move_left();
+                        if (new_position.is_inside(boundaries)) {
+                            new_physics.position = new_position;
+                        }
+                     
                     },
                     NextMove::Right => {
-                        new_physics.position = new_physics.position.move_right();
+                        new_position = new_physics.position.move_right();
+                        if (new_position.is_inside(boundaries)) {
+                            new_physics.position = new_position;
+                        }
                     }, 
                     _ => {}
                 }
@@ -290,3 +304,21 @@ pub fn update_system(mut gamestate: GameState) -> GameState {
     gamestate.physics = new_physics_vec;
     gamestate
 } 
+
+pub struct Boundaries {
+    pub x_min: u16,
+    pub x_max: u16,
+    pub y_min: u16,
+    pub y_max: u16,
+}
+
+impl Boundaries {
+    pub fn set_boundaries(term_size: (u16, u16)) -> Self {
+        Self {
+            x_min: 1,
+            x_max: term_size.0-1,
+            y_min: 1,
+            y_max: term_size.1-1,
+        }
+    }
+}
