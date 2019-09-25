@@ -49,6 +49,7 @@ pub enum Msg {
     Right,
     Up,
     Down,
+    Shot,
 }
 
 pub enum WelcomeRsp {
@@ -73,6 +74,7 @@ pub fn parse_input(val: termion::event::Key) -> Msg {
         termion::event::Key::Char('C') => Msg::Right,
         termion::event::Key::Char('A') => Msg::Up,
         termion::event::Key::Char('B') => Msg::Down,
+        termion::event::Key::Char('s') => Msg::Shot,
         _=> Msg::Continue,
     }
 }
@@ -82,7 +84,6 @@ pub struct Player {
     physics: Physics,
     humanoid: HumanoidState,
     actions: NextMove,
-    carrying: bool,
 }
 
 
@@ -92,7 +93,6 @@ impl Player {
             physics: Physics::new(term_size),
             humanoid: HumanoidState::Human,
             actions: NextMove::NoMove,
-            carrying: false,
         }
     }
 }
@@ -113,11 +113,15 @@ impl Monster {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
+pub enum WeaponCtx {
+    Loaded,
+    NotLoaded,
+}
+
 pub struct Weapon {
     physics: Physics,
     humanoid: HumanoidState,
-    actions: NextMove,
-    carried: bool,
 }
 
 impl Weapon {
@@ -125,8 +129,20 @@ impl Weapon {
         Self {
             physics: Physics::new(term_size),
             humanoid: HumanoidState::Weapon,
-            actions: NextMove::NoMove,
-            carried: false,
+        }
+    }
+}
+
+pub struct Bullet {
+    physics: Physics,
+    humanoid: HumanoidState,
+}
+
+impl Bullet {
+    pub fn fire_bullet(user_position: (u16, u16)) -> Self {
+        Self {
+            physics: Physics::new_bullet(user_position),
+            humanoid: HumanoidState::Bullet,
         }
     }
 }
@@ -140,7 +156,7 @@ pub struct GameState {
     pub humanoid: Vec<Option<HumanoidState>>, 
     pub actions: Vec<Option<NextMove>>,
     pub entities: Vec<EntityIndex>,
-    pub weapons: Vec<Option<bool>>,
+    pub weapons: Vec<Option<WeaponCtx>>,
 }
 
 impl GameState {
@@ -162,7 +178,7 @@ impl GameState {
         self.humanoid.push(Some(new_player.humanoid));
         self.actions.push(Some(NextMove::NoMove));
         self.entities.push(entity_count as u16 + 1);
-        self.weapons.push(Some(false));
+        self.weapons.push(None);
     }
     pub fn create_monster(&mut self, term_size: (u16, u16)) {
         let new_monster = Monster::new(term_size);
@@ -183,6 +199,16 @@ impl GameState {
         self.entities.push(entity_count as u16 + 1);
         self.weapons.push(None);
     }
+
+    pub fn create_bullet(&mut self, user_position: (u16, u16)) {
+        let new_bullet = Bullet::fire_bullet(user_position);
+        let entity_count = self.entities.len();
+
+        self.physics.push(Some(new_bullet.physics));
+        self.humanoid.push(Some(new_bullet.humanoid));
+        self.entities.push(entity_count as u16 + 1);
+        self.weapons.push(None);
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -192,6 +218,7 @@ pub enum NextMove {
     Left,
     Right,
     NoMove,
+    Shot,
 }
 
 pub fn translate_user_input(user_input: Msg) -> NextMove {
@@ -200,6 +227,7 @@ pub fn translate_user_input(user_input: Msg) -> NextMove {
         Msg::Right => NextMove::Right,
         Msg::Up => NextMove::Up,
         Msg::Down => NextMove::Down,
+        Msg::Shot => NextMove::Shot,
         _ => {NextMove::NoMove},
     }
 }
@@ -243,27 +271,22 @@ pub fn retrieve_weapon_position(gamestate: &GameState) -> (u16, u16) {
 pub fn weapon_system(mut gamestate: GameState, user_position: (u16, u16), weapon_position: (u16, u16)) -> GameState {
     
     let mut new_weapon_vec = Vec::new();
-
-    // iterate through all entities
-    for (h, w) in gamestate.humanoid.iter().zip(gamestate.weapons.iter()) {
+ 
+    if user_position == weapon_position {
+        for h in gamestate.humanoid.iter() {
         
-        // check if Weapon
-        if let Some(c) = w {
-            
             if let Some(i) = h {
                 match i {
                     HumanoidState::Human => {
-                        if (user_position == weapon_position) {
-                            new_weapon_vec.push(Some(true));
-                        }
+                        new_weapon_vec.push(Some(WeaponCtx::Loaded));
                     },
+                    HumanoidState::Weapon => {
+                        new_weapon_vec.push(Some(WeaponCtx::Loaded));
+                    }
                     _=> {new_weapon_vec.push(None);}
                 }
             }
-    
-
         }
-
     }
     gamestate.weapons = new_weapon_vec;
     gamestate
@@ -274,38 +297,45 @@ pub fn intelligence_system(mut gamestate: GameState, user_position: (u16, u16), 
     let mut new_action_set = Vec::new();
 
     // iterate through all entities
-    for (h, p) in gamestate.humanoid.iter().zip(gamestate.physics.iter()) {
-
-        // check if monster or user
-        if let Some(c) = p {
-            
-            if let Some(i) = h {
-                match i {
-                    HumanoidState::Human => {
-                        new_action_set.push(Some(user_move));
-                    },
-                    HumanoidState::Monster => {
+    let mut index = 0;
+    for h in gamestate.humanoid.iter() {      
+        if let Some(i) = h {
+            match i {
+                HumanoidState::Human => {
+                    new_action_set.push(Some(user_move));
+                },
+                HumanoidState::Monster => {
+                    if let Some(c) = gamestate.physics.get(index).unwrap() {
                         new_action_set.push(Some(compute_shortest_distance(c.accessPositionOuter(), user_position)));
-                    },
-                    HumanoidState::Weapon => {
-                        new_action_set.push(Some(NextMove::NoMove));
-                    },
-                    
-                }
+                    }
+                },
+                HumanoidState::Weapon => {
+                    if let Some(w) = gamestate.weapons.get(index).unwrap_or(&Some(WeaponCtx::NotLoaded)) {
+                        match w {
+                            WeaponCtx::Loaded => {
+                                new_action_set.push(Some(user_move));
+                            }
+                            _ => {
+                                new_action_set.push(Some(NextMove::NoMove));
+                            }
+                        }
+                    }
+                },                    
+                _ => {new_action_set.push(Some(NextMove::NoMove));}
             }
         }
-
+        index = index + 1;
     }
 
-    // update new actions sets
+// update new actions sets
 gamestate.actions = new_action_set;
 gamestate
 }
 
 // Action System
-pub fn update_system(mut gamestate: GameState, boundaries: &Boundaries) -> GameState {
-    
+pub fn update_system(mut gamestate: GameState, boundaries: &Boundaries, user_position: (u16, u16)) -> GameState {
     let mut new_physics_vec = Vec::new();
+    let mut shot_fired = false;
 
     for (cp,nm) in gamestate.physics.iter().zip(gamestate.actions.iter()) {
 
@@ -341,6 +371,14 @@ pub fn update_system(mut gamestate: GameState, boundaries: &Boundaries) -> GameS
                             new_physics.position = new_position;
                         }
                     }, 
+                    NextMove::Shot => {
+                        if let Some(w) = gamestate.weapons.get(0).unwrap_or(&Some(WeaponCtx::NotLoaded)) {
+                            match w {
+                                WeaponCtx::Loaded => {shot_fired = true;},
+                                _=> {}
+                            }
+                        }
+                    }
                     _ => {}
                 }
             new_physics_vec.push(Some(new_physics));
@@ -352,8 +390,13 @@ pub fn update_system(mut gamestate: GameState, boundaries: &Boundaries) -> GameS
 
     }
 
-    // overwrite gamestate
     gamestate.physics = new_physics_vec;
+    
+    if shot_fired {
+        gamestate.create_bullet(user_position);
+    }
+
+    // overwrite gamestate
     gamestate
 } 
 

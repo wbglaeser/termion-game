@@ -15,6 +15,13 @@ impl Position {
         }
     }
 
+    pub fn new_bullet(user_position: (u16, u16)) -> Self {
+        Self {
+            x: user_position.0,
+            y: user_position.1,
+        }
+    }
+
     pub fn empty() -> Self {
         Self {
             x:0,
@@ -84,6 +91,13 @@ impl Physics {
         Self {
             position: Position::new(term_size),
             velocity: Velocity::new()
+        }
+    }
+
+    pub fn new_bullet(user_position: (u16, u16)) -> Self {
+        Self {
+            position: Position::new_bullet(user_position),
+            velocity: Velocity::new(),
         }
     }
 
