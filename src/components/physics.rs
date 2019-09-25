@@ -7,10 +7,10 @@ pub struct Position {
 }
 
 impl Position {
-    pub fn new() -> Self {
+    pub fn new(term_size: (u16, u16)) -> Self {
         Self {
-            x: thread_rng().gen_range(2, 39), 
-            y: thread_rng().gen_range(2, 17), 
+            x: thread_rng().gen_range(2, term_size.0), 
+            y: thread_rng().gen_range(2, term_size.1), 
         }
     }
 
@@ -72,9 +72,9 @@ pub struct Physics {
 }
 
 impl Physics {
-    pub fn new() -> Self {
+    pub fn new(term_size: (u16, u16)) -> Self {
         Self {
-            position: Position::new(),
+            position: Position::new(term_size),
             velocity: Velocity::new()
         }
     }

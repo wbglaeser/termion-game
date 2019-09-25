@@ -16,7 +16,6 @@ use render::renderer::{welcome_message, goodbye_message, render_game, GameField}
 fn main() {
     let stdin_channel = spawn_stdin_channel();
 
-    println!("{:?}", termion::terminal_size());
     // Welcome message
     welcome_message();
     let mut game = false;
@@ -45,10 +44,9 @@ fn main() {
 
     // Set up some players
     let mut gamestate = GameState::new();
-    gamestate.create_player();
-    gamestate.create_monster();
-    gamestate.create_monster();
-    gamestate.create_monster();
+    gamestate.create_player(termion::terminal_size().unwrap());
+    gamestate.create_monster(termion::terminal_size().unwrap());
+    gamestate.create_monster(termion::terminal_size().unwrap());
 
     // Game Loop
     match game {

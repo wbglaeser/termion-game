@@ -86,9 +86,9 @@ pub struct Player {
 
 
 impl Player {
-    pub fn new() -> Self {
+    pub fn new(term_size: (u16, u16)) -> Self {
         Self {
-            physics: Physics::new(),
+            physics: Physics::new(term_size),
             humanoid: HumanoidState::Human,
             actions: NextMove::NoMove,
         }
@@ -102,9 +102,9 @@ pub struct Monster {
 }
 
 impl Monster {
-    pub fn new() -> Self {
+    pub fn new(term_size: (u16, u16)) -> Self {
         Self {
-            physics: Physics::new(),
+            physics: Physics::new(term_size),
             humanoid: HumanoidState::Monster,
             actions: NextMove::NoMove,
         }
@@ -132,8 +132,8 @@ impl GameState {
         }
     }
 
-    pub fn create_player(&mut self) {
-        let new_player = Player::new();
+    pub fn create_player(&mut self, term_size: (u16, u16)) {
+        let new_player = Player::new(term_size);
         let entity_count = self.entities.len();
         
         self.physics.push(Some(new_player.physics));
@@ -141,8 +141,8 @@ impl GameState {
         self.actions.push(Some(NextMove::NoMove));
         self.entities.push(entity_count as u16 + 1);
     }
-    pub fn create_monster(&mut self) {
-        let new_monster = Monster::new();
+    pub fn create_monster(&mut self, term_size: (u16, u16)) {
+        let new_monster = Monster::new(term_size);
         let entity_count = self.entities.len();
         
         self.physics.push(Some(new_monster.physics));
