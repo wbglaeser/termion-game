@@ -2,7 +2,7 @@ use termion;
 use super::visuals::{GAME_WELCOME, GAME_GOODBYE, GAME_FIELD};
 use crate::components::humanoid::HumanoidState;
 
-use lib::GameState;
+use lib::{GameState, WeaponCtx};
 
 pub enum test {
     this            
@@ -79,18 +79,49 @@ pub fn render_game(gamestate: &GameState, gamefield: &GameField) {
             
             let pos = i.accessPositionOuter();
             
-            if let Some(c) =  gamestate.humanoid.get(index).unwrap() {
+            if let Some(c) = gamestate.humanoid.get(index).unwrap() {
                     match c {
                         HumanoidState::Human => {
-                            println!("{goto}😃{hide}",
-                                goto=termion::cursor::Goto(pos.0, pos.1),
-                                hide=termion::cursor::Hide);
+                            
+                            if let Some(w) = gamestate.weapons.get(index).unwrap_or(&Some(WeaponCtx::NotLoaded)) {
+                                match w {
+                                    WeaponCtx::Loaded => {
+                                        println!("{goto}🤠{hide}",
+                                            goto=termion::cursor::Goto(pos.0, pos.1),
+                                            hide=termion::cursor::Hide);
+                                    },
+                                    _=> {
+                                        println!("{goto}😃{hide}",
+                                            goto=termion::cursor::Goto(pos.0, pos.1),
+                                            hide=termion::cursor::Hide);
+                                    }
+                                }
+                            }
+                            
+                            
                         },
                         HumanoidState::Monster => {
                             println!("{goto}👿{hide}",
                                 goto=termion::cursor::Goto(pos.0, pos.1),
                                 hide=termion::cursor::Hide);
                         },
+                        HumanoidState::Weapon => {
+                            if let Some(w) = gamestate.weapons.get(index).unwrap_or(&Some(WeaponCtx::NotLoaded)) {
+                                match w {
+                                    WeaponCtx::Loaded => {},
+                                    _ => {
+                                        println!("{goto}🔫{hide}",
+                                            goto=termion::cursor::Goto(pos.0, pos.1),
+                                            hide=termion::cursor::Hide);
+                                    }
+                                }
+                            }
+                        },
+                        HumanoidState::Bullet => {
+                            println!("{goto}💣{hide}",
+                                goto=termion::cursor::Goto(pos.0, pos.1),
+                                hide=termion::cursor::Hide);
+                        }
                     }
             }   
         }
