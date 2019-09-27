@@ -2,6 +2,19 @@ use termion;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
+use std::io;
+use std::sync::mpsc;
+use std::sync::mpsc::Receiver;
+use std::{thread, time};
+
+use super::components::Velocity;
+
+pub fn sleep(millis: u64) {
+     let duration = time::Duration::from_millis(millis);
+     thread::sleep(duration);
+} 
+  
+
 pub fn spawn_stdin_channel() -> Receiver<termion::event::Key> {
 
     let mut stdin = termion::async_stdin().keys();
@@ -27,7 +40,7 @@ fn pick_last_value(latest_keys: std::sync::mpsc::TryIter<termion::event::Key>) -
     final_val
 }
 
-fn input_screen() -> bool {
+pub fn input_screen() -> bool {
 
     let stdin_channel = spawn_stdin_channel();
     let game = false;
@@ -38,29 +51,32 @@ fn input_screen() -> bool {
         let latest_keys = stdin_channel.try_iter();
         let final_val = pick_last_value(latest_keys);
     
-        match parse_input_welcome(final_val) {
+        match final_val {
             termion::event::Key::Char('p') => {
                 game = true;
                 break;
             },
             termion::event::Key::Char('q') => {
                 break;
-            } 
+            },
+            _ => {},
         }
 
         sleep(500)
     }
+    game
 }
 
 
-pub take_user_input(rx: Receiver<termion::event::Key>) {
+pub fn take_user_input(rx: Receiver<termion::event::Key>) -> Action {
         
     let latest_keys = rx.try_iter();
     let final_val = pick_last_value(latest_keys);
-
+    parse_game_input(final_val)
 
 }
 
+#[derive(PartialEq)]
 pub enum Action {
     Up,
     Down,
@@ -68,7 +84,8 @@ pub enum Action {
     Right,
     Shot,
     Break,
-    End
+    End,
+    Nothing,
 }
 
 pub fn parse_game_input(key: termion::event::Key) -> Action {
@@ -80,5 +97,17 @@ pub fn parse_game_input(key: termion::event::Key) -> Action {
         termion::event::Key::Char('D') => Action::Left,
         termion::event::Key::Char('C') => Action::Right,
         termion::event::Key::Char('s') => Action::Shot,
+        _=> Action::Nothing,
+    }
+}
+
+
+pub fn translate_user_input(user_input: Action) -> Velocity {
+    match user_input {
+        Action::Up => Velocity {x: 0, y: -1},
+        Action::Down => Velocity {x: 0, y: 1},
+        Action::Left => Velocity {x: -1, y: 0},
+        Action::Right => Velocity {x: 1, y: 0},
+        _ => Velocity {x: 0, y: 0},
     }
 }

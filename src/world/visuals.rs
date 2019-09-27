@@ -10,11 +10,11 @@ pub const GAME_GOODBYE: &'static str = "╔════════════�
                                         ╚══════════════════════════════════════╝";
 
 pub struct GameField{
-    new_gamefield: String,
+    pub new_gamefield: String,
 }
 
 impl GameField {
-    pub fn set_game_field(dims: (u16, u16)) -> Self {
+    pub fn set_game_field(dims: &(u16, u16)) -> Self {
 
         let mut new_gamefield = String::from("╔");
         let top_end: &str = "╗\n\r";
@@ -25,15 +25,15 @@ impl GameField {
         let extension: &str = "═";
 
         // Top row
-        for i in (1..dims.0-1) {
+        for i in 1..dims.0-1 {
             new_gamefield.push_str(extension);
         }
         new_gamefield.push_str(top_end);
 
         // Inbetween row
-        for i in (1..dims.1-2) {
+        for i in 1..dims.1-2 {
             new_gamefield.push_str(middle_start);
-            for y in (1..dims.0-1) {
+            for y in 1..dims.0-1 {
                 new_gamefield.push_str(" ");
             }
             new_gamefield.push_str(middle_end);
@@ -41,7 +41,7 @@ impl GameField {
 
         // Bottom row
         new_gamefield.push_str(bottom_start);
-        for i in (1..dims.0-1) {
+        for i in 1..dims.0-1 {
             new_gamefield.push_str(extension);
         }
         new_gamefield.push_str(bottom_end);
