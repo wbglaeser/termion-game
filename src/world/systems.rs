@@ -15,6 +15,27 @@ impl PositionSystem {
 }
 
 
+/// System to check for weapons
+struct WeaponSystem;
+
+impl WeaponSystem {
+    pub fn try_pick_up(mut world: World, user_position: Position, weapon_position: Position) -> World {
+
+        if user_position == weapon_position {
+            for (etype, weapon) in izip!(world.entitytype, world.weapons) {
+                match etype {
+                    EntityType::Human => {weapon = Some(Weapon);},
+                    EntityType::Weapon => {weapon = Some(Weapon);},
+                    _=> {} 
+                }
+            }
+        }
+
+        world
+
+    }
+}
+
 /// System to render world to screen
 struct RenderingSystem;
 
@@ -36,7 +57,10 @@ impl RenderingSystem {
             hide=termion::cursor::Hide);
     }
 
-    fn render_world(&world: World) {
+    fn render_world(&world: World) -> (Position, Position) {
+
+        let mut user_position = Position{x:0, y: 0};
+        let mut weapon_position = Position{x:0, y: 0};
 
         println!("{clear}{goto}{vis}{hide}",
             clear=termion::clear::All,
@@ -48,6 +72,7 @@ impl RenderingSystem {
             if let Some(pos) = position {
                 if let Some(etype) = entitytype {
                     EntityType::Human => {
+                        user_position = pos;
                         if let Some(weap) =  weapon {
                             println!("{goto}🤠{hide}",
                                 goto=termion::cursor::Goto(pos.0, pos.1),
@@ -64,6 +89,7 @@ impl RenderingSystem {
                                 hide=termion::cursor::Hide);
                     },
                     EntityType::Weapon => {
+                        weapon_position = pos;
                         if let Some(weap) =  weapon {
                             println!("{goto}🔫{hide}",
                                 goto=termion::cursor::Goto(pos.0, pos.1),
