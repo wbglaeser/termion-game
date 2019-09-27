@@ -20,14 +20,10 @@ impl World {
     };
 
     /// Register a new resource
-    fn create_entity(mut self, 
-                     position: Position, 
-                     velocity: Velocity,
-                     entitytype: EntityType,
-                     weapon: Option(Weapon)) {
-        self.positions.push(position);
-        self.velocity.push(position);
-        self.entitytype.push(position);
-        self.weapons.push(weapon);
+    fn create_entity(mut self, entitytype: EntityType, &term_size: (u16, u16)) {
+        self.positions.push(Position::new(term_size));
+        self.velocity.push(Velocity { x: 0, y: 0 };
+        self.entitytype.push(entitytype);
+        self.weapons.push(None);
     }
 }
