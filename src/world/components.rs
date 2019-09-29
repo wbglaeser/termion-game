@@ -1,7 +1,7 @@
 use rand::{thread_rng, Rng};
 
 #[derive(Copy, Debug, Clone, PartialEq)]
-pub(crate) struct Position {
+pub struct Position {
     pub x: i16,
     pub y: i16,
 }
@@ -20,8 +20,8 @@ impl Position {
         x_delta + y_delta
     }
 
-    pub fn move_with_vel(&self, vel: &Velocity) -> &Self {
-        &Self {
+    pub fn move_with_vel(&self, vel: &Velocity) -> Self {
+        Self {
             x: self.x + vel.x,
             y: self.y + vel.y,
         }
@@ -29,13 +29,13 @@ impl Position {
 }
 
 #[derive(Copy, Debug, Clone)]
-pub(crate) struct Velocity {
+pub struct Velocity {
     pub x: i16,
     pub y: i16,
 }
 
 #[derive(Copy, Clone)]
-pub(crate) enum EntityType {
+pub enum EntityType {
     Human,
     Monster,
     Weapon,
@@ -43,4 +43,4 @@ pub(crate) enum EntityType {
 }
 
 #[derive(Copy, Clone)]
-pub(crate) struct Weapon;
+pub struct Weapon;

@@ -43,7 +43,7 @@ fn pick_last_value(latest_keys: std::sync::mpsc::TryIter<termion::event::Key>) -
 pub fn input_screen() -> bool {
 
     let stdin_channel = spawn_stdin_channel();
-    let game = false;
+    let mut game = false;
 
     loop {
         
@@ -102,7 +102,7 @@ pub fn parse_game_input(key: termion::event::Key) -> Action {
 }
 
 
-pub fn translate_user_input(user_input: Action) -> Velocity {
+pub fn translate_user_input(user_input: &Action) -> Velocity {
     match user_input {
         Action::Up => Velocity {x: 0, y: -1},
         Action::Down => Velocity {x: 0, y: 1},

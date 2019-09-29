@@ -49,11 +49,8 @@ fn main() {
             }
 
             // Run Systems
-            world = WeaponSystem::try_pick_up(world, pos_set.0, pos_set.1);
-            world = VelocitySystem::run(world, &pos_set.0, user_input);
-
-
-
+            WeaponSystem::try_pick_up(&mut world, &pos_set.0, &pos_set.1);
+            VelocitySystem::run(&mut world, &pos_set.0, &user_input);
         }
     }
 

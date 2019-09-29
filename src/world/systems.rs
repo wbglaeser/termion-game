@@ -9,7 +9,7 @@ struct PositionSystem;
 
 impl PositionSystem {
     fn run(mut world: World) {
-        for (position, velocity) in izip!(world.positions, world.velocities) { 
+        for (mut position, mut velocity) in izip!(world.positions, world.velocities) { 
             position.x += velocity.y;
             position.y += velocity.x;
         }
@@ -20,20 +20,17 @@ impl PositionSystem {
 pub struct WeaponSystem;
 
 impl WeaponSystem {
-    pub fn try_pick_up(mut world: World, user_position: &Position, weapon_position: &Position) -> World {
+    pub fn try_pick_up(world: &mut World, user_position: &Position, weapon_position: &Position) {
 
         if user_position == weapon_position {
-            for (etype, weapon) in izip!(world.entitytype, world.weapons) {
+            for (etype, mut weapon) in izip!(&world.entitytype, &world.weapons) {
                 match etype {
-                    EntityType::Human => {weapon = Some(Weapon);},
-                    EntityType::Weapon => {weapon = Some(Weapon);},
+                    EntityType::Human => {weapon = &Some(Weapon);},
+                    EntityType::Weapon => {weapon = &Some(Weapon);},
                     _=> {} 
                 }
             }
         }
-
-        world
-
     }
 }
 
@@ -41,33 +38,32 @@ impl WeaponSystem {
 pub struct VelocitySystem;
 
 impl VelocitySystem {
-    pub fn run(mut world: World, user_position: &Position, user_input: Action) -> World {
+    pub fn run(world: &mut World, user_position: &Position, user_input: &Action) {
     
-        let human_vel = Velocity{x:0, y:0};
+        let mut human_vel = Velocity{x:0, y:0};
 
         for (etype, velocity, position, weapon) 
-            in izip!(world.entitytype, world.velocities, world.positions, world.weapons) {
+            in izip!(&world.entitytype, &mut world.velocities, &world.positions, &world.weapons) {
             match etype {
                 EntityType::Human => {
-                    velocity = translate_user_input(user_input);
+                    *velocity = translate_user_input(user_input);
                     human_vel = velocity.clone();
                 },
                 EntityType::Monster => {
-                    velocity = compute_monster_move(position, user_position);
+                    *velocity = compute_monster_move(&position, user_position);
                 },
                 EntityType::Weapon => {
                     if let Some(weap) = weapon {
-                        velocity = human_vel;
+                        *velocity = human_vel;
                     }
                 },
                 _=> {}
             }
         }
-        world
     }
 }
 
-fn compute_monster_move(position: Position, user_position: &Position) -> Velocity {
+fn compute_monster_move(position: &Position, user_position: &Position) -> Velocity {
     
     let mut new_velocity = Velocity{x:0, y:0};
     let mut shortest_distance: i16 = 1000; 
@@ -104,7 +100,7 @@ impl RenderingSystem {
             hide=termion::cursor::Hide);
     }
 
-    pub fn render_world<'a>(world: &'a World, gamefield: &GameField) -> (&'a Position, &'a Position) {
+    pub fn render_world(world: &World, gamefield: &GameField) -> (Position, Position) {
 
         let mut user_position = &Position{x:0, y: 0};
         let mut weapon_position = &Position{x:0, y: 0};
@@ -149,7 +145,7 @@ impl RenderingSystem {
             }   
         }
 
-        (user_position, weapon_position)
+        (user_position.clone(), weapon_position.clone())
     }
 }
 
