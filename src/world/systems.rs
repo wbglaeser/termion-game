@@ -5,13 +5,13 @@ use super::world::World;
 use super::visuals::{GAME_GOODBYE, GAME_WELCOME, GameField};
 
 // System to adjust position
-struct PositionSystem;
+pub struct PositionSystem;
 
 impl PositionSystem {
-    fn run(mut world: World) {
-        for (mut position, mut velocity) in izip!(world.positions, world.velocities) { 
-            position.x += velocity.y;
-            position.y += velocity.x;
+    pub fn run(world: &mut World) {
+        for (mut position, velocity) in izip!(&mut world.positions, &world.velocities) { 
+            position.x += velocity.x;
+            position.y += velocity.y;
         }
     }
 }
@@ -23,10 +23,10 @@ impl WeaponSystem {
     pub fn try_pick_up(world: &mut World, user_position: &Position, weapon_position: &Position) {
 
         if user_position == weapon_position {
-            for (etype, mut weapon) in izip!(&world.entitytype, &world.weapons) {
+            for (etype, mut weapon) in izip!(&mut world.entitytype, &mut world.weapons) {
                 match etype {
-                    EntityType::Human => {weapon = &Some(Weapon);},
-                    EntityType::Weapon => {weapon = &Some(Weapon);},
+                    EntityType::Human => {*weapon = Some(Weapon);},
+                    EntityType::Weapon => {*weapon = Some(Weapon);},
                     _=> {} 
                 }
             }
@@ -64,7 +64,7 @@ impl VelocitySystem {
 }
 
 fn compute_monster_move(position: &Position, user_position: &Position) -> Velocity {
-    
+   
     let mut new_velocity = Velocity{x:0, y:0};
     let mut shortest_distance: i16 = 1000; 
 
@@ -97,7 +97,7 @@ impl RenderingSystem {
             clear=termion::clear::All,
             goto=termion::cursor::Goto(1,1),
             vis=GAME_GOODBYE,
-            hide=termion::cursor::Hide);
+            hide=termion::cursor::Show);
     }
 
     pub fn render_world(world: &World, gamefield: &GameField) -> (Position, Position) {
@@ -132,9 +132,10 @@ impl RenderingSystem {
                 },
                 EntityType::Weapon => {
                     weapon_position = pos;
-                    if let Some(weap) =  weapon {
+                    if let Some(weap) =  weapon {} else {
                         println!("{goto}🔫{hide}",
                             goto=termion::cursor::Goto(pos.x as u16, pos.y as u16),                                hide=termion::cursor::Hide);
+
                     }
                 },
                 EntityType::Bullet => {

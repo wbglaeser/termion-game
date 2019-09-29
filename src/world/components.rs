@@ -17,7 +17,7 @@ impl Position {
     pub fn compute_distance(&self, other_position: &Position) -> i16 {
         let x_delta = self.x as i16 - other_position.x as i16;
         let y_delta = self.y as i16 - other_position.y as i16;
-        x_delta + y_delta
+        x_delta.abs() + y_delta.abs()
     }
 
     pub fn move_with_vel(&self, vel: &Velocity) -> Self {

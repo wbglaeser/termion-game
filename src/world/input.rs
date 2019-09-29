@@ -40,15 +40,13 @@ fn pick_last_value(latest_keys: std::sync::mpsc::TryIter<termion::event::Key>) -
     final_val
 }
 
-pub fn input_screen() -> bool {
+pub fn input_screen(rx: &Receiver<termion::event::Key>) -> bool {
 
-    let stdin_channel = spawn_stdin_channel();
     let mut game = false;
 
     loop {
         
-        let mut stdout = io::stdout().into_raw_mode().unwrap();
-        let latest_keys = stdin_channel.try_iter();
+        let latest_keys = rx.try_iter();
         let final_val = pick_last_value(latest_keys);
     
         match final_val {
@@ -68,7 +66,7 @@ pub fn input_screen() -> bool {
 }
 
 
-pub fn take_user_input(rx: Receiver<termion::event::Key>) -> Action {
+pub fn take_user_input(rx: &Receiver<termion::event::Key>) -> Action {
         
     let latest_keys = rx.try_iter();
     let final_val = pick_last_value(latest_keys);
@@ -76,7 +74,7 @@ pub fn take_user_input(rx: Receiver<termion::event::Key>) -> Action {
 
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum Action {
     Up,
     Down,
@@ -107,7 +105,7 @@ pub fn translate_user_input(user_input: &Action) -> Velocity {
         Action::Up => Velocity {x: 0, y: -1},
         Action::Down => Velocity {x: 0, y: 1},
         Action::Left => Velocity {x: -1, y: 0},
-        Action::Right => Velocity {x: 1, y: 0},
+        Action::Right => Velocity {x:1, y: 0},
         _ => Velocity {x: 0, y: 0},
     }
 }
