@@ -30,7 +30,7 @@ fn main() {
         // Game Setup
         let mut world = World::new();
         world.create_entity(EntityType::Human, &term_size);
-        //world.create_entity(EntityType::Monster, &term_size);
+        world.create_entity(EntityType::Monster, &term_size);
         world.create_entity(EntityType::Weapon, &term_size);
 
         // Setup necessary Systems
