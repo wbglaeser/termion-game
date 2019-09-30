@@ -5,3 +5,4 @@ Mix actors and termion for simple game
 
 * Make monsters a little less smart
 * Make shots fly
+* Make boundaries hard
