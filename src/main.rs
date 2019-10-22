@@ -52,7 +52,7 @@ fn main() {
             WeaponSystem::try_pick_up(&mut world, &pos_set.0, &pos_set.1);
             VelocitySystem::run(&mut world, &pos_set.0, &user_input);
             PositionSystem::run(&mut world);
-            sleep(150)
+            sleep(75)
         }
     }
     
